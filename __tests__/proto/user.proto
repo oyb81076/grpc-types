@@ -1,0 +1,16 @@
+syntax = "proto3";
+package user;
+
+message User {
+  string name = 1;
+  bool sex = 4;
+  int32 age = 2;
+  int64 birth = 3;
+  repeated User user = 5;
+}
+
+enum Role {
+  NONE = 0;
+  ROOT = 1;
+  MANAGER = 2;
+}

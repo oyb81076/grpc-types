@@ -1,0 +1,19 @@
+syntax = "proto3";
+package hello;
+
+// The greeting service definition.
+service Greeter {
+    // Sends a greeting
+    rpc SayHello(.user.User) returns (HelloReply) {};
+}
+
+// The request message containing the user's name.
+message HelloRequest {
+  .user.User string = 1;
+}
+
+// The response message containing the greetings
+message HelloReply {
+  // 这里我没有定义 age,那么response中也不会有
+  string message = 1;
+}
