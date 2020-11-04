@@ -6,12 +6,27 @@ it('normal', async () => {
   expect(output).toMatchInlineSnapshot(`
     "declare namespace rpc {
       declare namespace hello {
+        /**
+         * The greeting service definition.
+         */
         interface Greeter {
+          /**
+           * Some Comment
+           * Others
+           */
           SayHello: (request: user.User) => Promise<HelloReply>;
         }
+
+        /**
+         * The request message containing the user's name.
+         */
         interface HelloRequest {
           string: user.User;
         }
+
+        /**
+         * The response message containing the greetings
+         */
         interface HelloReply {
           message: string;
         }

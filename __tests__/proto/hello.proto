@@ -1,10 +1,13 @@
 syntax = "proto3";
+import "user.proto";
 package hello;
-
 // The greeting service definition.
 service Greeter {
-    // Sends a greeting
-    rpc SayHello(.user.User) returns (HelloReply) {};
+  /**
+    * Some Comment
+    * Others
+    */
+  rpc SayHello(.user.User) returns (HelloReply) {};
 }
 
 // The request message containing the user's name.

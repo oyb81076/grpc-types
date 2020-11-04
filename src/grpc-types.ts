@@ -18,7 +18,14 @@ interface Context extends Options {
 }
 export default async function gRPCTypes(
   pattern: string,
-  { parse = {}, serialize = {}, types = {} }: Options = {}
+  {
+    parse = {
+      alternateCommentMode: true,
+      preferTrailingComment: true,
+    },
+    serialize = {},
+    types = {},
+  }: Options = {}
 ): Promise<string> {
   // eslint-disable-next-line no-underscore-dangle
   const filenames = await util.promisify(glob)(pattern);
@@ -51,6 +58,7 @@ function rpc(root: pb.Root, ctx: Context) {
 }
 
 function namespace(ns: pb.Namespace, ctx: Context) {
+  comment(ns.comment, ctx);
   ctx.out.push(`declare namespace ${ns.name}{`);
   ns.nestedArray.forEach((x) => {
     if (x instanceof pb.Service) {
@@ -66,17 +74,21 @@ function namespace(ns: pb.Namespace, ctx: Context) {
   ctx.out.push('}');
 }
 function service(node: pb.Service, ctx: Context) {
+  comment(node.comment, ctx);
+
   ctx.out.push(`interface ${node.name}{`);
   node.methodsArray.forEach((x) => serviceMethod(x, ctx));
   ctx.out.push('}');
 }
 function serviceMethod(node: pb.Method, ctx: Context) {
+  comment(node.comment, ctx);
   const request = typeName(node.requestType, ctx);
   const response = typeName(node.responseType, ctx);
   ctx.out.push(`${node.name}: (request: ${request})=> Promise<${response}>;`);
 }
 
 function message(node: pb.Type, ctx: Context) {
+  comment(node.comment, ctx);
   ctx.out.push(`interface ${node.name}{`);
   node.fieldsArray.forEach((x) => messageField(x, ctx));
   ctx.out.push('}');
@@ -91,8 +103,10 @@ function messageField(node: pb.Field, ctx: Context) {
 }
 
 function enums(node: pb.Enum, ctx: Context) {
+  comment(node.comment, ctx);
   ctx.out.push(`enum ${node.name}{`);
   Object.entries(node.values).forEach(([key, value]) => {
+    comment(node.comments[key], ctx);
     ctx.out.push(`${key}=${value},`);
   });
   ctx.out.push('}');
@@ -137,3 +151,12 @@ const TYPES: Record<ProtoType, string> = {
   bytes: 'Buffer',
   string: 'string',
 };
+function comment(ns: string | null | undefined, ctx: Context) {
+  if (ns) {
+    const array = ns.split('\n');
+    ctx.out.push('');
+    ctx.out.push('/**');
+    array.forEach((x) => ctx.out.push(`* ${x}`));
+    ctx.out.push(' */');
+  }
+}
